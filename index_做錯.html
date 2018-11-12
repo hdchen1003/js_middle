@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <select id="Area"></select>
+    <select id="Type"></select>
+    <div class="count"></div>
+    <div class="content"></div>
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', "https://work1999.kcg.gov.tw/open1999/ServiceRequestsQuery.asmx/ServiceRequestsQuery", true);
+        xhr.send();
+        xhr.onload = function () {
+            var data = JSON.parse(xhr.responseText);
+            // document.querySelector('.content').textContent = data[0].UnitName_
+            //宣告會用到的變數
+            var areas = {};
+            var types = {};
+            var areasArray = [];
+            var typesArray = [];
+            var Area = document.querySelector('#Area');
+            var Type = document.querySelector('#Type');
+
+            //用迴圈讀出各種地區和種類
+            for (i = 0; i < data.length; i++) {
+                var _area = data[i].ZipName_;
+                var _type = data[i].InformDesc_;
+
+                if (areas[_area] == undefined) {
+                    areas[_area] = 1;
+                    areasArray[areasArray.length] = _area
+                }
+
+                else {
+                    areas[_area]++;
+                }
+                if (types[_type] == undefined) {
+                    types[_type] = 1;
+                    typesArray[typesArray.length] = _type
+                }
+                else {
+                    types[_type]++;
+                }
+            }
+
+            //放到選項裡面
+            var str = ' <option value="all" >全部區域</option>'
+            for (var i = 0; i < areasArray.length; i++) {
+                str += ' <option value=' + areasArray[i] + '>' + areasArray[i] + '</option>'
+            }
+            Area.innerHTML = str
+
+            str = ' <option value="all" >全部種類</option>'
+            for (var i = 0; i < typesArray.length; i++) {
+                str += ' <option value=' + typesArray[i] + '>' + typesArray[i] + '</option>'
+            }
+            Type.innerHTML = str
+
+            //監聽事件
+            Area.addEventListener('change', function (e) {
+                var count = ''
+                var str = '<ul>'
+                if (Type.value == 'all' && Area.value == 'all') {
+                    //全選
+
+                    var _count = 0;
+                    for (i = 0; i < data.length; i++) {
+                        str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                        _count++;
+                    }
+                    count += '<h3><span>所有案件</span> 有<em>' + _count + '</em>處</h3>'
+
+                }
+                else {
+                    if (Type.value == 'all') {
+                        //全種類               
+
+                        var _count = 0;
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].ZipName_ == Area.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>' + Area.value + '的案件</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                    else if (Area.value == 'all') {
+                        //全區域
+
+                        var _count = 0;
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].InformDesc_ == Type.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>全高雄 ' + Type.value + '</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                    else {
+                        var _count = 0;
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].InformDesc_ == Type.value && data[i].ZipName_ == Area.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>' + Area.value + ' </span><span>' + Type.value + '</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                }
+                str += '</ul>'
+                document.querySelector('.content').innerHTML = str
+                document.querySelector('.count').innerHTML = count
+            })
+
+            Type.addEventListener('change', function (e) {
+                var count = ''
+                var str = '<ul>'
+                if (Type.value == 'all' && Area.value == 'all') {
+                    //全選
+
+                    var _count = 0;
+                    for (i = 0; i < data.length; i++) {
+                        str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                        _count++;
+                    }
+                    count += '<h3><span>所有案件</span> 有<em>' + _count + '</em>處</h3>'
+                }
+                else {
+                    if (Type.value == 'all') {
+                        //全種類
+
+                        var _count = 0;
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].ZipName_ == Area.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>' + Area.value + '的案件</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                    else if (Area.value == 'all') {
+                        //全區域
+
+                        var _count = 0;
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].InformDesc_ == Type.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>全高雄 ' + Type.value + '</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                    else {
+                        var __areas = {};
+                        var __areasArray = [];
+                        var _count = 0;
+
+                        for (i = 0; i < data.length; i++) {
+                            var ___area = data[i].ZipName_;
+
+                            if (data[i].InformDesc_ == Type.value) {
+                                if (__areas[___area] == undefined) {
+                                    __areas[___area] = 1;
+                                    __areasArray[__areasArray.length] = ___area
+                                }
+                                else {
+                                    __areas[___area]++;
+                                }
+                            }
+
+
+                        }
+                        var _str = ' <option value="all" >全部區域</option>'
+                        for (var i = 0; i < __areasArray.length; i++) {
+                            _str += ' <option value=' + __areasArray[i] + '>' + __areasArray[i] + '</option>'
+                        }
+                        console.log(_str)
+                        Area.innerHTML = _str
+
+
+
+
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].InformDesc_ == Type.value && data[i].ZipName_ == Area.value) {
+                                str += '<li><h4>地點：' + data[i].address_ + '</h4><h5>報案狀況：' + data[i].BeforeDesc_ + '</h5></li>'
+                                _count++;
+                            }
+                        }
+                        count += '<h3><span>' + Area.value + '</span><span>' + Type.value + '</span> 有<em>' + _count + '</em>處</h3>'
+                    }
+                }
+                str += '</ul>'
+                document.querySelector('.content').innerHTML = str
+                document.querySelector('.count').innerHTML = count
+            })
+        };  
+    </script>
+</body>
+
+</html>
